@@ -1,0 +1,12 @@
+{
+    "cSpell.words": [
+        "ciena",
+        "Lttng",
+        "nostd",
+        "opentelemetry",
+        "opentelemetry"
+    ],
+    "editor.formatOnPaste": true,
+    "editor.detectIndentation": true,
+    "clang-tidy.buildPath": "build/"
+}
