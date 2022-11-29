@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/vscode/devcontainers/cpp:0-ubuntu-22.04
+FROM ubuntu:22.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -78,4 +78,10 @@ ENV VCPKG_ROOT=/opt/microsoft/vcpkg
 WORKDIR /code
 COPY . .
 
-CMD time ./run.sh 6 3
+EXPOSE 5559
+EXPOSE 5560
+
+CMD mkdir -p build &&\
+	cmake -B build &&\
+	cmake --build build/ --config Debug --target proxy -- &&\
+	script -c "./build/proxy" -f /tmp/output/output.log

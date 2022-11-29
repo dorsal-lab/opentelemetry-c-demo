@@ -9,20 +9,20 @@ find_library(ZeroMQ czmq REQUIRED)
 add_executable(client)
 target_link_libraries(client PRIVATE czmq zmq)
 target_include_directories(client PRIVATE include)
-target_sources(client PRIVATE 
+target_sources(client PRIVATE
     src/client.c)
 
 # proxy
 add_executable(proxy)
 target_link_libraries(proxy PRIVATE czmq zmq)
 target_include_directories(proxy PRIVATE include)
-target_sources(proxy PRIVATE 
+target_sources(proxy PRIVATE
     src/proxy.c)
 
 # server
 add_executable(server)
 target_link_libraries(server PRIVATE czmq zmq)
 target_include_directories(server PRIVATE include)
-target_sources(server PRIVATE 
+target_sources(server PRIVATE
     src/server.c
     src/prime.c)

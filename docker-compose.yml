@@ -1,0 +1,52 @@
+version: '3.9'
+services:
+  client-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    volumes:
+      - ./out/ctf-traces/client-1:/home/root/.lttng/sessions
+      - ./out/output/client-1:/tmp/output
+    network_mode: host
+  client-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    volumes:
+      - ./out/ctf-traces/client-2:/home/root/.lttng/sessions
+      - ./out/output/client-2:/tmp/output
+    network_mode: host
+  client-3:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    volumes:
+      - ./out/ctf-traces/client-3:/home/root/.lttng/sessions
+      - ./out/output/client-3:/tmp/output
+    network_mode: host
+  proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile.proxy
+    volumes:
+      - ./ctf-traces/proxy:/home/root/.lttng/sessions
+      - ./out/output/proxy:/tmp/output
+    network_mode: host
+  server-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    volumes:
+      - ./ctf-traces/server-1:/home/root/.lttng/sessions
+      - ./out/output/server-1:/tmp/output
+    network_mode: host
+  server-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    volumes:
+      - ./ctf-traces/server-2:/home/root/.lttng/sessions
+      - ./out/output/server-2:/tmp/output
+    network_mode: host
+networks:
+  localhost:

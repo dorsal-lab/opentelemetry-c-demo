@@ -15,9 +15,8 @@ fi
 echo "Building all targets ..."
 
 mkdir -p build
-cd build
-cmake ..
-make
+cmake -B build
+cmake --build build/ --config Debug --target all --
 
 # Kill any application running on proxy ports
 PROXY_PID=$(lsof -t -i:5559) && kill "$PROXY_PID"
@@ -25,14 +24,14 @@ PROXY_PID=$(lsof -t -i:5560) && kill "$PROXY_PID"
 
 # Proxy
 echo "Starting proxy ..."
-./proxy &> /dev/null &
+./build/proxy &> /dev/null &
 PROXY_PID=$!
 
 # Servers
 echo "Starting servers ..."
 SERVERS_PID=()
 for _ in $(seq 1 "$N_SERVERS"); do
-    ./server &> /dev/null &
+    ./build/server &> /dev/null &
     SERVERS_PID+=( $! )
 done
 
@@ -40,7 +39,7 @@ done
 echo "Starting clients ..."
 CLIENTS_PID=()
 for _ in $(seq 1 "$N_CLIENTS"); do
-    ./client &
+    ./build/client &
     CLIENTS_PID+=( $! )
 done
 

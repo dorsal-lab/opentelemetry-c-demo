@@ -23,3 +23,4 @@ _deps
 build
 cmake-build-debug
 out
+ctf-traces
