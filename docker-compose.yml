@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile.client
     volumes:
-      - ./out/ctf-traces/client-1:/home/root/.lttng/sessions
+      - ./out/ctf-traces/client-1:/code/ctf-traces
       - ./out/output/client-1:/tmp/output
     network_mode: host
   client-2:
@@ -13,7 +13,7 @@ services:
       context: .
       dockerfile: Dockerfile.client
     volumes:
-      - ./out/ctf-traces/client-2:/home/root/.lttng/sessions
+      - ./out/ctf-traces/client-2:/code/ctf-traces
       - ./out/output/client-2:/tmp/output
     network_mode: host
   client-3:
@@ -21,7 +21,7 @@ services:
       context: .
       dockerfile: Dockerfile.client
     volumes:
-      - ./out/ctf-traces/client-3:/home/root/.lttng/sessions
+      - ./out/ctf-traces/client-3:/code/ctf-traces
       - ./out/output/client-3:/tmp/output
     network_mode: host
   proxy:
@@ -29,7 +29,7 @@ services:
       context: .
       dockerfile: Dockerfile.proxy
     volumes:
-      - ./ctf-traces/proxy:/home/root/.lttng/sessions
+      - ./out/ctf-traces/proxy:/code/ctf-traces
       - ./out/output/proxy:/tmp/output
     network_mode: host
   server-1:
@@ -37,7 +37,7 @@ services:
       context: .
       dockerfile: Dockerfile.server
     volumes:
-      - ./ctf-traces/server-1:/home/root/.lttng/sessions
+      - ./out/ctf-traces/server-1:/code/ctf-traces
       - ./out/output/server-1:/tmp/output
     network_mode: host
   server-2:
@@ -45,8 +45,6 @@ services:
       context: .
       dockerfile: Dockerfile.server
     volumes:
-      - ./ctf-traces/server-2:/home/root/.lttng/sessions
+      - ./out/ctf-traces/server-2:/code/ctf-traces
       - ./out/output/server-2:/tmp/output
     network_mode: host
-networks:
-  localhost:

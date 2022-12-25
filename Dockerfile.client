@@ -101,6 +101,14 @@ WORKDIR /code
 COPY . .
 
 CMD mkdir -p build &&\
-    cmake -B build &&\
-    cmake --build build/ --config Debug --target client -- &&\
-    script -c "./build/client" -f /tmp/output/output.log
+    cmake -B build -S . -D CMAKE_BUILD_TYPE=Release &&\
+    cmake --build build/ --target client -- &&\
+	lttng create --output=ctf-traces/ &&\
+	lttng enable-event -u 'opentelemetry:*' &&\
+	lttng add-context -u -t vtid &&\
+	lttng start &&\
+	mkdir -p /tmp/output &&\
+	touch /tmp/output/output.log &&\
+    script -c "./build/client" -f /tmp/output/output.log &&\
+	lttng stop &&\
+	lttng destroy

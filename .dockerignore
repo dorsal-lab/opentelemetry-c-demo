@@ -20,6 +20,7 @@ _deps
 
 # End of https://www.toptal.com/developers/gitignore/api/cmake
 .cache
-cmake-build-debug
 build
+cmake-build-debug
 out
+ctf-traces

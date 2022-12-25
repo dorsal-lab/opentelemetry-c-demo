@@ -104,6 +104,14 @@ EXPOSE 5559
 EXPOSE 5560
 
 CMD mkdir -p build &&\
-    cmake -B build &&\
-    cmake --build build/ --config Debug --target proxy -- &&\
-    script -c "./build/proxy" -f /tmp/output/output.log
+    cmake -B build -S . -D CMAKE_BUILD_TYPE=Release &&\
+    cmake --build build/ --target proxy -- &&\
+	lttng create --output=ctf-traces/ &&\
+	lttng enable-event -u 'opentelemetry:*' &&\
+	lttng add-context -u -t vtid &&\
+	lttng start &&\
+	mkdir -p /tmp/output &&\
+	touch /tmp/output/output.log &&\
+    script -c "./build/proxy" -f /tmp/output/output.log &&\
+	lttng stop &&\
+	lttng destroy
