@@ -63,7 +63,6 @@ int main() {
   int message_sent_from_backend_to_frontend = 0;
   zmq_msg_t message;
   while (1) {
-    printf("[proxy ] n_connected_clients=%d\n", n_connected_clients);
     zmq_poll(items, 3, -1);
     if (items[0].revents & ZMQ_POLLIN) {
       // Address

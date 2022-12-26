@@ -1,264 +1,190 @@
 # otel-experiment
 
-TODO 
+Simple ZeroMQ client, proxy and server application traced using [opentelemetry-c](https://github.com/augustinsangam/opentelemetry-c). Clients ask to servers to compute the nth prime number. Requests and responses are routed through a central proxy.
+
+## Architecture
+
+The picture below shows how hosts are connected through ZeroMQ sockets. Arrows represent how messages flows.
+
+![Replayer Architecture](architecture.png)
+
+### The proxy
+
+The proxy binds 4 sockets on ports 5559, 5560, 5561 and 5562:
+
+- A pair of ROUTER and DEALER sockets to exchange messages (requests and responses) between frontend and backends. Read more on this combinaison in the [ZGuide](https://zguide.zeromq.org/docs/chapter2/#Shared-Queue-DEALER-and-ROUTER-sockets).
+- A ROUTER socket receiving clients connection and disconnection messages. This sockets help tracking the number of clients connected. When a client connects to the proxy, it send a message saying "connect". And "disconnect" when he is done.
+- A PUB socket send a message ("KILL") whenever the proxy wants to shutdown. This help all subscribers to gracefully exit.
+
+### Client
+
+In the previous picture, 2 hosts clients are shown. This number could be infinite. Each client connects to two sockets:
+
+- A REQ socket connected to one of the proxy ROUTER socket, to send requests and receive responses.
+- A DEALER socket connected to the other proxy ROUTER socket, to send client "connect" and "disconnect" messages.
+
+### Server
+
+In the previous picture, 2 hosts clients are shown. Each host having 2 workers threads each. These numbers could be infinite too.
+
+Each server connects/binds to three sockets:
+
+- A ROUTER socket connected to the Proxy DEALER socket, to send requests and receive responses from workers.
+- A SUB socket connected to the Proxy PUB socket, to be notified when the proxy stops.
+- A DEALER socket binded with Workers, to forward requests/reply to workers.
+
+### Worker
+
+The worker is the one in charge of handling the clients requests.
+
+Each worker connects to two sockets:
+
+- A REP socket to connected to the Server DEALER socket, to receive requests and send responses to the server.
+- A SUB socket connected to the Proxy PUB socket, to be notified when the proxy stops.
 
 ## Run
 
 ```bash
-docker build --no-cache -t otel-experiment . &&  docker run otel-experiment:latest
+docker compose up
 ```
 
-Example of program execution output :
+This command will launch 3 clients, 1 proxy and 2 servers on different hosts. Each client will send 10 requests to the server and shutdown. After all clients shutdowns, the proxy will shutdown and finally the server also.
+
+Each host log and traces is mounted to the `out/` directory. Here will be the folder structure :
 
 ```plaintext
-$ docker build -t otel-experiment . &&  docker run otel-experiment:latest
-Sending build context to Docker daemon  70.66kB
-Step 1/8 : FROM mcr.microsoft.com/vscode/devcontainers/cpp:0-ubuntu-22.04
- ---> f66cbe0da8ed
-Step 2/8 : ARG DEBIAN_FRONTEND=noninteractive
- ---> Using cache
- ---> 474031c58a79
-Step 3/8 : RUN apt-get update &&     apt-get install -y software-properties-common &&     apt-add-repository ppa:lttng/stable-2.13 &&     apt-get update
- ---> Using cache
- ---> 828c0c047be3
-Step 4/8 : RUN apt-get install -y wget     curl     zip     unzip     tar     curl      time     libcurl4-openssl-dev     build-essential     libczmq-dev     linux-headers-$(uname -r)     pkg-config     kmod     libnuma-dev     uuid-dev     libpopt-dev     liburcu-dev     libxml2-dev     babeltrace2     numactl     binutils     libc-dev     libstdc++-10-dev     gcc-10     g++-10     clangd-12     clang-tidy     clang-format     cmake     git     make     ninja-build
- ---> Using cache
- ---> ceba3ea4a68b
-Step 5/8 : ENV CC=gcc-10 CXX=g++-10
- ---> Using cache
- ---> 6a3f74042cfe
-Step 6/8 : WORKDIR /code
- ---> Using cache
- ---> 2e7865ff3a51
-Step 7/8 : COPY . .
- ---> da945d962380
-Step 8/8 : CMD time ./run.sh 6 3
- ---> Running in f2f5e097dc81
-Removing intermediate container f2f5e097dc81
- ---> 0dbeaa6adb65
-Successfully built 0dbeaa6adb65
-Successfully tagged otel-experiment:latest
-+ N_CLIENTS=1
-+ N_SERVERS=1
-+ [[ -n 6 ]]
-+ N_CLIENTS=6
-+ [[ -n 3 ]]
-+ N_SERVERS=3
-+ echo 'Building all targets ...'
-+ mkdir -p build
-Building all targets ...
-+ cd build
-+ cmake ..
--- The C compiler identification is GNU 10.4.0
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Check for working C compiler: /usr/bin/gcc-10 - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Configuring done
--- Generating done
--- Build files have been written to: /code/build
-+ make
-[ 14%] Building C object CMakeFiles/client.dir/src/client.c.o
-[ 28%] Linking C executable client
-[ 28%] Built target client
-[ 42%] Building C object CMakeFiles/proxy.dir/src/proxy.c.o
-[ 57%] Linking C executable proxy
-[ 57%] Built target proxy
-[ 71%] Building C object CMakeFiles/server.dir/src/server.c.o
-[ 85%] Building C object CMakeFiles/server.dir/src/prime.c.o
-[100%] Linking C executable server
-[100%] Built target server
-++ lsof -t -i:5559
-+ PROXY_PID=
-++ lsof -t -i:5560
-Starting proxy ...
-+ PROXY_PID=
-+ echo 'Starting proxy ...'
-+ PROXY_PID=97
-+ echo 'Starting servers ...'
-+ SERVERS_PID=()
-Starting servers ...
-+ ./proxy
-++ seq 1 3
-+ for _ in $(seq 1 "$N_SERVERS")
-+ SERVERS_PID+=($!)
-+ for _ in $(seq 1 "$N_SERVERS")
-+ ./server
-+ SERVERS_PID+=($!)
-+ for _ in $(seq 1 "$N_SERVERS")
-+ ./server
-+ SERVERS_PID+=($!)
-+ echo 'Starting clients ...'
-+ CLIENTS_PID=()
-Starting clients ...
-+ ./server
-++ seq 1 6
-+ for _ in $(seq 1 "$N_CLIENTS")
-+ CLIENTS_PID+=($!)
-+ for _ in $(seq 1 "$N_CLIENTS")
-+ ./client
-+ CLIENTS_PID+=($!)
-+ for _ in $(seq 1 "$N_CLIENTS")
-+ ./client
-+ CLIENTS_PID+=($!)
-+ for _ in $(seq 1 "$N_CLIENTS")
-+ CLIENTS_PID+=($!)
-+ for _ in $(seq 1 "$N_CLIENTS")
-+ ./client
-+ CLIENTS_PID+=($!)
-+ for _ in $(seq 1 "$N_CLIENTS")
-+ CLIENTS_PID+=($!)
-+ ./client
-+ for pid in "${CLIENTS_PID[@]}"
-+ wait 103
-+ ./client
-+ ./client
-Connecting to the proxy
-Requesting nth_prime_buffer=2777
-Received 2777th prime = 25163
-Requesting nth_prime_buffer=2915
-Received 2915th prime = 26561
-Requesting nth_prime_buffer=3793
-Received 3793th prime = 35617
-Requesting nth_prime_buffer=2335
-Received 2335th prime = 20743
-Requesting nth_prime_buffer=3386
-Received 3386th prime = 31469
-Requesting nth_prime_buffer=2492
-Received 2492th prime = 22259
-Requesting nth_prime_buffer=2649
-Received 2649th prime = 23819
-Requesting nth_prime_buffer=3421
-Received 3421th prime = 31847
-Requesting nth_prime_buffer=2362
-Received 2362th prime = 21011
-Requesting nth_prime_buffer=2027
-Received 2027th prime = 17627
-Connecting to the proxy
-Requesting nth_prime_buffer=2777
-Received 2777th prime = 25163
-Requesting nth_prime_buffer=2915
-Received 2915th prime = 26561
-Requesting nth_prime_buffer=3793
-Received 3793th prime = 35617
-Requesting nth_prime_buffer=2335
-Received 2335th prime = 20743
-Requesting nth_prime_buffer=3386
-Received 3386th prime = 31469
-Requesting nth_prime_buffer=2492
-Received 2492th prime = 22259
-Requesting nth_prime_buffer=2649
-Received 2649th prime = 23819
-Requesting nth_prime_buffer=3421
-Received 3421th prime = 31847
-Requesting nth_prime_buffer=2362
-Received 2362th prime = 21011
-Requesting nth_prime_buffer=2027
-Received 2027th prime = 17627
-Connecting to the proxy
-Requesting nth_prime_buffer=2777
-Received 2777th prime = 25163
-Requesting nth_prime_buffer=2915
-Received 2915th prime = 26561
-Requesting nth_prime_buffer=3793
-Received 3793th prime = 35617
-Requesting nth_prime_buffer=2335
-Received 2335th prime = 20743
-Requesting nth_prime_buffer=3386
-Received 3386th prime = 31469
-Requesting nth_prime_buffer=2492
-Received 2492th prime = 22259
-Requesting nth_prime_buffer=2649
-Received 2649th prime = 23819
-Requesting nth_prime_buffer=3421
-Received 3421th prime = 31847
-Requesting nth_prime_buffer=2362
-Received 2362th prime = 21011
-Requesting nth_prime_buffer=2027
-Received 2027th prime = 17627
-+ for pid in "${CLIENTS_PID[@]}"
-+ wait 104
-+ for pid in "${CLIENTS_PID[@]}"
-+ wait 105
-Connecting to the proxy
-Requesting nth_prime_buffer=2777
-Received 2777th prime = 25163
-Requesting nth_prime_buffer=2915
-Received 2915th prime = 26561
-Requesting nth_prime_buffer=3793
-Received 3793th prime = 35617
-Requesting nth_prime_buffer=2335
-Received 2335th prime = 20743
-Requesting nth_prime_buffer=3386
-Received 3386th prime = 31469
-Requesting nth_prime_buffer=2492
-Received 2492th prime = 22259
-Requesting nth_prime_buffer=2649
-Received 2649th prime = 23819
-Requesting nth_prime_buffer=3421
-Received 3421th prime = 31847
-Requesting nth_prime_buffer=2362
-Received 2362th prime = 21011
-Requesting nth_prime_buffer=2027
-Received 2027th prime = 17627
-+ for pid in "${CLIENTS_PID[@]}"
-+ wait 108
-Connecting to the proxy
-Requesting nth_prime_buffer=2777
-Received 2777th prime = 25163
-Requesting nth_prime_buffer=2915
-Received 2915th prime = 26561
-Requesting nth_prime_buffer=3793
-Received 3793th prime = 35617
-Requesting nth_prime_buffer=2335
-Received 2335th prime = 20743
-Requesting nth_prime_buffer=3386
-Received 3386th prime = 31469
-Requesting nth_prime_buffer=2492
-Received 2492th prime = 22259
-Requesting nth_prime_buffer=2649
-Received 2649th prime = 23819
-Requesting nth_prime_buffer=3421
-Received 3421th prime = 31847
-Requesting nth_prime_buffer=2362
-Received 2362th prime = 21011
-Requesting nth_prime_buffer=2027
-Received 2027th prime = 17627
-Connecting to the proxy
-Requesting nth_prime_buffer=2777
-Received 2777th prime = 25163
-Requesting nth_prime_buffer=2915
-Received 2915th prime = 26561
-Requesting nth_prime_buffer=3793
-Received 3793th prime = 35617
-Requesting nth_prime_buffer=2335
-Received 2335th prime = 20743
-Requesting nth_prime_buffer=3386
-Received 3386th prime = 31469
-Requesting nth_prime_buffer=2492
-Received 2492th prime = 22259
-Requesting nth_prime_buffer=2649
-Received 2649th prime = 23819
-Requesting nth_prime_buffer=3421
-Received 3421th prime = 31847
-Requesting nth_prime_buffer=2362
-Received 2362th prime = 21011
-Requesting nth_prime_buffer=2027
-Received 2027th prime = 17627
-+ for pid in "${CLIENTS_PID[@]}"
-+ wait 109
-+ for pid in "${CLIENTS_PID[@]}"
-+ wait 110
-+ kill 97
-+ for pid in "${SERVERS_PID[@]}"
-+ kill 99
-+ for pid in "${SERVERS_PID[@]}"
-+ kill 100
-+ for pid in "${SERVERS_PID[@]}"
-+ kill 101
-+ echo 'Done!'
-Done!
-1.01user 0.62system 0:02.09elapsed 78%CPU (0avgtext+0avgdata 19576maxresident)k
-0inputs+1208outputs (0major+52329minor)pagefaults 0swaps
+.
+└── out/
+    ├── ctf-traces/
+    │   ├── client1/
+    │   │   └── ... (ctf traces)
+    │   ├── client2/
+    │   │   └── ... (ctf traces)
+    │   ├── client3/
+    │   │   └── ... (ctf traces)
+    │   ├── proxy/
+    │   │   └── ... (ctf traces)
+    │   ├── server1/
+    │   │   └── ... (ctf traces)
+    │   └── server2/
+    │       └── ... (ctf traces)
+    └── output/
+        ├── client1/
+        │   └── output.log
+        ├── client2/
+        │   └── output.log
+        ├── client3/
+        │   └── output.log
+        ├── proxy/
+        │   └── output.log
+        ├── server1/
+        │   └── output.log
+        └── server2/
+            └── output.log
 ```
+
+Example of client output :
+
+```plaintext
+Script started on 2022-12-25 22:30:51+00:00 [<not executed on terminal>]
+[client] Connecting to the proxy
+[client] Requesting nth_prime_buffer=1
+[client] Received 1th prime = 2
+[client] Requesting nth_prime_buffer=1001
+[client] Received 1001th prime = 7927
+[client] Requesting nth_prime_buffer=2001
+[client] Received 2001th prime = 17393
+[client] Requesting nth_prime_buffer=3001
+[client] Received 3001th prime = 27457
+[client] Requesting nth_prime_buffer=4001
+[client] Received 4001th prime = 37831
+[client] Requesting nth_prime_buffer=5001
+[client] Received 5001th prime = 48619
+[client] Requesting nth_prime_buffer=6001
+[client] Received 6001th prime = 59369
+[client] Requesting nth_prime_buffer=7001
+[client] Received 7001th prime = 70663
+[client] Requesting nth_prime_buffer=8001
+[client] Received 8001th prime = 81817
+[client] Requesting nth_prime_buffer=9001
+[client] Received 9001th prime = 93187
+
+Script done on 2022-12-25 22:30:53+00:00 [COMMAND_EXIT_CODE="0"]
+```
+
+Example of proxy output :
+
+```plaintext
+Script started on 2022-12-25 22:30:51+00:00 [<not executed on terminal>]
+[proxy ] Starting proxy...
+[proxy ] Binding proxy to connector...
+[proxy ] Binding proxy to terminator...
+[proxy ] Binding proxy to frontend...
+[proxy ] Binding proxy to backend...
+
+Script done on 2022-12-25 22:30:53+00:00 [COMMAND_EXIT_CODE="0"]
+```
+
+Example of server output :
+
+```plaintext
+Script started on 2022-12-25 22:30:51+00:00 [<not executed on terminal>]
+[server] Connecting to the terminator...
+[server] Connecting to the proxy...
+[server] Connecting to the terminator...
+[server] Connecting to the terminator...
+[server] Connecting to the terminator...
+[server] Connecting to the terminator...
+[server] Connecting client to workers...
+[server] Connecting to the terminator...
+[server] Connecting to the terminator...
+[server] Connecting to the terminator...
+[server] Connecting to the terminator...
+[server] Received nth=1
+[server] Replied 1th prime = 2
+[server] Received nth=1
+[server] Replied 1th prime = 2
+[server] Received nth=1001
+[server] Received nth=1001
+[server] Replied 1001th prime = 7927
+[server] Replied 1001th prime = 7927
+[server] Received nth=2001
+[server] Received nth=2001
+[server] Received nth=1
+[server] Replied 1th prime = 2
+[server] Received nth=1001
+[server] Replied 1001th prime = 7927
+[server] Received nth=2001
+[server] Replied 2001th prime = 17393
+[server] Replied 2001th prime = 17393
+[server] Received nth=3001
+[server] Received nth=3001
+[server] Replied 2001th prime = 17393
+[server] Received nth=3001
+[server] Replied 3001th prime = 27457
+[server] Replied 3001th prime = 27457
+[server] Received nth=4001
+[server] Replied 3001th prime = 27457
+[server] Replied 4001th prime = 37831
+[server] Received nth=5001
+[server] Received nth=5001
+[server] Replied 5001th prime = 48619
+[server] Received nth=6001
+[server] Replied 5001th prime = 48619
+[server] Replied 6001th prime = 59369
+[server] Received nth=7001
+[server] Received nth=7001
+[server] Replied 7001th prime = 70663
+[server] Received nth=8001
+[server] Replied 7001th prime = 70663
+[server] Received nth=9001
+[server] Replied 8001th prime = 81817
+[server] Received nth=9001
+[server] Replied 9001th prime = 93187
+[server] Replied 9001th prime = 93187
+[server] Received kill signal
+
+Script done on 2022-12-25 22:30:53+00:00 [COMMAND_EXIT_CODE="0"]
+```
+
+To view and analyse ctf traces, you can use the [otel replayer](https://github.com/augustinsangam/otel-replayer) to send each hosts telemetry data to observability backend like Jaeger and Prometheus.
