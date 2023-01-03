@@ -1,10 +1,10 @@
 # opentelemetry-c-demo
 
-Simple ZeroMQ client, proxy and server application traced using [opentelemetry-c](https://github.com/augustinsangam/opentelemetry-c). Clients ask to servers to compute the nth prime number (n is the request input). Requests and responses are routed through a central proxy.
+Simple ZeroMQ client, proxy and server application traced using [opentelemetry-c](https://github.com/augustinsangam/opentelemetry-c). Clients ask servers to compute the nth prime number (n is the request input). Requests and responses are routed through a central proxy.
 
 ## Architecture
 
-The picture below shows how hosts are connected through ZeroMQ sockets. Arrows represent how messages flows.
+The picture below shows how hosts are connected through ZeroMQ sockets. Arrows represent how messages flow.
 
 ![Replayer Architecture](architecture.png)
 
@@ -12,45 +12,47 @@ The picture below shows how hosts are connected through ZeroMQ sockets. Arrows r
 
 The proxy binds 4 sockets on ports 5559, 5560, 5561 and 5562:
 
-- A pair of ROUTER and DEALER sockets to exchange messages (requests and responses) between frontend and backends. Read more on this combination in the [ZGuide](https://zguide.zeromq.org/docs/chapter2/#Shared-Queue-DEALER-and-ROUTER-sockets).
-- A ROUTER socket receiving clients connection and disconnection messages. This sockets help tracking the number of clients connected. When a client connects to the proxy, it send a message saying "connect". And "disconnect" when he is done.
-- A PUB socket send a message ("KILL") whenever the proxy wants to shutdown. This help all subscribers to gracefully exit.
+- A pair of ROUTER and DEALER sockets to exchange messages (requests and responses) between frontend and backends. Read more on this combination in the [ZMQ Guide](https://zguide.zeromq.org/docs/chapter2/#Shared-Queue-DEALER-and-ROUTER-sockets).
+- A ROUTER socket receiving clients' connection and disconnection messages. These sockets help track the number of clients connected. When a client connects to the proxy, it sends a message saying "connect". And "disconnect" when he is done.
+- A PUB socket sends a message ("KILL") whenever the proxy wants to shut down. This helps all subscribers to gracefully exit.
 
 ### Client
 
-In the previous picture, 2 hosts clients are shown. This number could be infinite. Each client connects to two sockets:
+In the previous picture, 2 host clients are shown. This number could be infinite. Each client connects to two sockets:
 
-- A REQ socket connected to one of the proxy ROUTER socket, to send requests and receive responses.
-- A DEALER socket connected to the other proxy ROUTER socket, to send client "connect" and "disconnect" messages.
+- A REQ socket is connected to one of the proxy ROUTER socket to send requests and receive responses.
+- A DEALER socket connected to the other proxy ROUTER socket to send client "connect" and "disconnect" messages.
 
 ### Server
 
-In the previous picture, 2 hosts clients are shown. Each host having 2 workers threads each. These numbers could be infinite too.
+In the previous picture, 2 host clients are shown. Each host has 2 workers threads. These numbers could be infinite too.
 
 Each server connects/binds to three sockets:
 
-- A ROUTER socket connected to the Proxy DEALER socket, to send requests and receive responses from workers.
-- A SUB socket connected to the Proxy PUB socket, to be notified when the proxy stops.
-- A DEALER socket binded with Workers, to forward requests/reply to workers.
+- A ROUTER socket is connected to the Proxy DEALER socket, to send requests and receive responses from workers.
+- A SUB socket is connected to the Proxy PUB socket to be notified when the proxy stops.
+- A DEALER socket is binded with Workers, to forward requests/replies to workers.
 
 ### Worker
 
-The worker is the one in charge of handling the clients requests.
+The worker is the one in charge of handling the client's requests.
 
 Each worker connects to two sockets:
 
-- A REP socket to connected to the Server DEALER socket, to receive requests and send responses to the server.
-- A SUB socket connected to the Proxy PUB socket, to be notified when the proxy stops.
+- A REP socket to connect to the Server DEALER socket, to receive requests and send responses to the server.
+- A SUB socket is connected to the Proxy PUB socket to be notified when the proxy stops.
 
 ## Run
 
 ```bash
+git clone --recurse-submodules git@github.com:augustinsangam/opentelemetry-c-demo.git 
+cd opentelemetry-c-demo
 docker compose up
 ```
 
-This command will launch 3 clients, 1 proxy and 2 servers on different hosts. Each client will send 10 requests to the server and shutdown. After all clients shutdowns, the proxy will shutdown and finally the server also.
+This command will launch 3 clients, 1 proxy and 2 servers on different hosts. Each client will send 10 requests to the server and shut down. After all clients shutdowns, the proxy will shut down and finally the server also.
 
-Each host log and traces is mounted to the `out/` directory. Here will be the folder structure :
+Each host logs and traces are mounted to the `out/` directory. Here will be the folder structure :
 
 ```plaintext
 .
@@ -187,4 +189,4 @@ Script started on 2022-12-25 22:30:51+00:00 [<not executed on terminal>]
 Script done on 2022-12-25 22:30:53+00:00 [COMMAND_EXIT_CODE="0"]
 ```
 
-To view and analyse ctf traces, you can use the [otel replayer](https://github.com/augustinsangam/otel-replayer) to send each hosts telemetry data to observability backend like Jaeger and Prometheus.
+To view and analyze CTF traces, you can use the [otel-replayer project](https://github.com/augustinsangam/otel-replayer) to send each host's telemetry data to observability backends like Jaeger and Prometheus.
