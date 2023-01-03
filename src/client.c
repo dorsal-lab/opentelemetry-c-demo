@@ -9,9 +9,8 @@
 #include <stdlib.h>
 
 int main() {
-  init_tracing("otel-experiment-client", "0.0.1", "", "machine-client-0.0.1");
-  // ZMQ code inspired from
-  // https://riptutorial.com/zeromq/example/29221/zeromq-hello-world-example-
+  init_tracing("opentelemetry-c-demo-client", "0.0.1", "", "machine-client-0.0.1");
+  // ZMQ code inspired from examples in ZMQ guide (https://zguide.zeromq.org/)
 
   printf("[client] Connecting to the proxy\n");
   void *context = zmq_ctx_new();

@@ -1,6 +1,6 @@
-# otel-experiment
+# opentelemetry-c-demo
 
-Simple ZeroMQ client, proxy and server application traced using [opentelemetry-c](https://github.com/augustinsangam/opentelemetry-c). Clients ask to servers to compute the nth prime number. Requests and responses are routed through a central proxy.
+Simple ZeroMQ client, proxy and server application traced using [opentelemetry-c](https://github.com/augustinsangam/opentelemetry-c). Clients ask to servers to compute the nth prime number (n is the request input). Requests and responses are routed through a central proxy.
 
 ## Architecture
 
@@ -12,7 +12,7 @@ The picture below shows how hosts are connected through ZeroMQ sockets. Arrows r
 
 The proxy binds 4 sockets on ports 5559, 5560, 5561 and 5562:
 
-- A pair of ROUTER and DEALER sockets to exchange messages (requests and responses) between frontend and backends. Read more on this combinaison in the [ZGuide](https://zguide.zeromq.org/docs/chapter2/#Shared-Queue-DEALER-and-ROUTER-sockets).
+- A pair of ROUTER and DEALER sockets to exchange messages (requests and responses) between frontend and backends. Read more on this combination in the [ZGuide](https://zguide.zeromq.org/docs/chapter2/#Shared-Queue-DEALER-and-ROUTER-sockets).
 - A ROUTER socket receiving clients connection and disconnection messages. This sockets help tracking the number of clients connected. When a client connects to the proxy, it send a message saying "connect". And "disconnect" when he is done.
 - A PUB socket send a message ("KILL") whenever the proxy wants to shutdown. This help all subscribers to gracefully exit.
 

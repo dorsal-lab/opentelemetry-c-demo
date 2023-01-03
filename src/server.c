@@ -71,7 +71,7 @@ static void *worker_routine(void *args) {
 }
 
 int main() {
-  init_tracing("otel-experiment-server", "0.0.1", "", "machine-server-0.0.1");
+  init_tracing("opentelemetry-c-demo-server", "0.0.1", "", "machine-server-0.0.1");
   // ZMQ code inspired from
   // https://github.com/booksbyus/zguide/blob/master/examples/C/mtserver.c
   void *context = zmq_ctx_new();

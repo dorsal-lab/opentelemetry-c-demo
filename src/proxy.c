@@ -11,7 +11,7 @@
 #include <zmq.h>
 
 int main() {
-  init_tracing("otel-experiment-proxy", "0.0.1", "", "machine-proxy-0.0.1");
+  init_tracing("opentelemetry-c-demo-proxy", "0.0.1", "", "machine-proxy-0.0.1");
 
   // ZMQ code inspired from
   // https://github.com/booksbyus/zguide/blob/master/examples/C/msgqueue.c

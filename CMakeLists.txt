@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(otel-experiment)
+project(opentelemetry-c-demo)
 
 find_library(ZeroMQ czmq REQUIRED)
 
