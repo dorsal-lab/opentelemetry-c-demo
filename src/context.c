@@ -4,6 +4,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * @brief Combine a string context to a string message
+ *
+ * Use the method if you need to combine message and context as one message to
+ * avoid send message and context separately.
+ *
+ * @param message The message
+ * @param context The context
+ * @return char* The message with its context
+ */
 char *add_context_to_message(const char *message, const char *context) {
   unsigned long message_length = strlen(message);
   unsigned long context_length = strlen(context);
@@ -12,6 +22,13 @@ char *add_context_to_message(const char *message, const char *context) {
   return buffer;
 }
 
+/**
+ * @brief Reverse add_context_to_message function operation
+ *
+ * @param message_and_context The message and its context
+ * @param message (Out parameter) The message
+ * @param context (Out parameter) The context
+ */
 void split_message_and_context(const char *message_and_context, char **message,
                                char **context) {
   char buffer[20];

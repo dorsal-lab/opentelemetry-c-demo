@@ -13,7 +13,7 @@ The picture below shows how hosts are connected through ZeroMQ sockets. Arrows r
 The proxy binds 4 sockets on ports 5559, 5560, 5561 and 5562:
 
 - A pair of ROUTER and DEALER sockets to exchange messages (requests and responses) between frontend and backends. Read more on this combination in the [ZMQ Guide](https://zguide.zeromq.org/docs/chapter2/#Shared-Queue-DEALER-and-ROUTER-sockets).
-- A ROUTER socket receiving clients' connection and disconnection messages. These sockets help track the number of clients connected. When a client connects to the proxy, it sends a message saying "connect". And "disconnect" when he is done.
+- A ROUTER socket receiving clients' connection and disconnection messages. These sockets help track the number of clients connected. When a client connects to the proxy, it sends a message saying "CONNECT". And "DISCONNECT" when he is done.
 - A PUB socket sends a message ("KILL") whenever the proxy wants to shut down. This helps all subscribers to gracefully exit.
 
 ### Client
@@ -21,7 +21,7 @@ The proxy binds 4 sockets on ports 5559, 5560, 5561 and 5562:
 In the previous picture, 2 host clients are shown. This number could be infinite. Each client connects to two sockets:
 
 - A REQ socket is connected to one of the proxy ROUTER socket to send requests and receive responses.
-- A DEALER socket connected to the other proxy ROUTER socket to send client "connect" and "disconnect" messages.
+- A DEALER socket connected to the other proxy ROUTER socket to send client "CONNECT" and "DISCONNECT" messages.
 
 ### Server
 

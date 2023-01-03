@@ -71,7 +71,8 @@ static void *worker_routine(void *args) {
 }
 
 int main() {
-  init_tracing("opentelemetry-c-demo-server", "0.0.1", "", "machine-server-0.0.1");
+  init_tracer_provider("opentelemetry-c-demo-server", "0.0.1", "",
+                       "machine-server-0.0.1");
   // ZMQ code inspired from
   // https://github.com/booksbyus/zguide/blob/master/examples/C/mtserver.c
   void *context = zmq_ctx_new();
@@ -123,10 +124,10 @@ int main() {
       break;
     }
     if (items[1].revents & ZMQ_POLLIN) {
-      zmq_exchange_multipart_message(&message, clients, workers);
+      zmq_exchange_one_multipart_message(&message, clients, workers);
     }
     if (items[2].revents & ZMQ_POLLIN) {
-      zmq_exchange_multipart_message(&message, workers, clients);
+      zmq_exchange_one_multipart_message(&message, workers, clients);
     }
   }
 

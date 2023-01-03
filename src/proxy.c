@@ -11,7 +11,8 @@
 #include <zmq.h>
 
 int main() {
-  init_tracing("opentelemetry-c-demo-proxy", "0.0.1", "", "machine-proxy-0.0.1");
+  init_tracer_provider("opentelemetry-c-demo-proxy", "0.0.1", "",
+                       "machine-proxy-0.0.1");
 
   // ZMQ code inspired from
   // https://github.com/booksbyus/zguide/blob/master/examples/C/msgqueue.c
@@ -103,9 +104,9 @@ int main() {
     if (items[2].revents & ZMQ_POLLIN) {
       free(s_recv(connector)); // Delimiter
       char *message = s_recv(connector);
-      if (strcmp(message, "connect") == 0) {
+      if (strcmp(message, "CONNECT") == 0) {
         n_connected_clients++;
-      } else if (strcmp(message, "disconnect") == 0) {
+      } else if (strcmp(message, "DISCONNECT") == 0) {
         n_connected_clients--;
       }
       free(message);

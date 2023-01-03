@@ -9,6 +9,6 @@
 // Maximal number of worker thread a single server can start
 #define N_MAX_WORKERS 8
 
-#define N_MAX_CLIENT_REQUESTS 10
+#define N_MAX_CLIENT_REQUESTS 50
 
 #endif // !CONSTANTS_H

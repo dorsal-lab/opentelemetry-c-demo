@@ -70,7 +70,7 @@ static void zmq_msg_recv_sendmore(zmq_msg_t *message, void *receiver,
   zmq_msg_close(message);
 }
 
-static void zmq_exchange_multipart_message(zmq_msg_t *message, void *receiver,
+static void zmq_exchange_one_multipart_message(zmq_msg_t *message, void *receiver,
                                            void *sender) {
   while (1) {
     zmq_msg_init(message);

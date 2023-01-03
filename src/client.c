@@ -9,7 +9,8 @@
 #include <stdlib.h>
 
 int main() {
-  init_tracing("opentelemetry-c-demo-client", "0.0.1", "", "machine-client-0.0.1");
+  init_tracer_provider("opentelemetry-c-demo-client", "0.0.1", "",
+                       "machine-client-0.0.1");
   // ZMQ code inspired from examples in ZMQ guide (https://zguide.zeromq.org/)
 
   printf("[client] Connecting to the proxy\n");
@@ -21,7 +22,7 @@ int main() {
   sprintf(proxy_connection_addr, "tcp://localhost:%s",
           PROXY_CONNECTION_MANAGEMENT_PORT);
   ZMQ_CHECK(zmq_connect(connecter, proxy_connection_addr));
-  s_send(connecter, "connect");
+  s_send(connecter, "CONNECT");
 
   // Socket to communicate with servers
   void *requester = zmq_socket(context, ZMQ_REQ);
@@ -51,7 +52,7 @@ int main() {
     end_span(span);
   }
 
-  s_send(connecter, "disconnect");
+  s_send(connecter, "DISCONNECT");
 
   zmq_close(connecter);
   zmq_close(requester);

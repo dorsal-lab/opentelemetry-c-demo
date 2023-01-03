@@ -4,7 +4,7 @@
 # Usage: ./run.sh <n_clients> <n_server>
 # Note that each server is multithreaded and launchs N_MAX_WORKERS worker threads
 
-set -ex
+set -e
 
 N_CLIENTS=1
 N_SERVERS=1
@@ -89,7 +89,7 @@ echo "Stop LTTng session ..."
 lttng stop
 
 echo "View traces ..."
-lttng view
+lttng view | sed 's/\(.\{400\}\).*/\1.../'
 
 echo "Destroting LTTng session ..."
 lttng destroy
