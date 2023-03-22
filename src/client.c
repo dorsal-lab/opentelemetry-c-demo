@@ -1,7 +1,7 @@
 #include "constants.h"
 #include "zhelpers.h"
 
-#include <opentelemetry_c.h>
+#include <opentelemetry_c/opentelemetry_c.h>
 #include <zmq.h>
 
 #include <assert.h>
