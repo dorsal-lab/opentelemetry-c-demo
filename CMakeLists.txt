@@ -5,12 +5,6 @@ project(opentelemetry-c-demo)
 find_library(ZeroMQ czmq REQUIRED)
 find_library(opentelemetry-c opentelemetry-c REQUIRED)
 
-get_cmake_property(_variableNames VARIABLES)
-list (SORT _variableNames)
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
-
 # client
 add_executable(client)
 target_link_libraries(client PRIVATE czmq zmq opentelemetry-c ${OPENTELEMETRY_C_LIBRARIES})
