@@ -1,7 +1,7 @@
 FROM ghcr.io/augustinsangam/lttng-otelcpp:main
 
 WORKDIR /tmp/augustinsangam
-RUN git clone --depth 1 https://github.com/augustinsangam/opentelemetry-c.git
+RUN git clone https://github.com/augustinsangam/opentelemetry-c.git
 RUN cd opentelemetry-c &&\
 	git checkout 72381f92fc3e58070110bd287877f08985595f04 &&\
 	mkdir -p build &&\

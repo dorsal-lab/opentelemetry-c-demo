@@ -10,7 +10,7 @@ The picture below shows how hosts are connected through ZeroMQ sockets. Arrows r
 
 ### The proxy
 
-The proxy binds 4 sockets on ports 5559, 5560, 5561 and 5562:
+The proxy binds 4 sockets on ports 5559, 5560, 5561 and 5562. Make sure those ports are available before running applications.
 
 - A pair of ROUTER and DEALER sockets to exchange messages (requests and responses) between frontend and backends. Read more on this combination in the [ZMQ Guide](https://zguide.zeromq.org/docs/chapter2/#Shared-Queue-DEALER-and-ROUTER-sockets).
 - A ROUTER socket receiving clients' connection and disconnection messages. These sockets help track the number of clients connected. When a client connects to the proxy, it sends a message saying "CONNECT". And "DISCONNECT" when he is done.
@@ -44,10 +44,10 @@ Each worker connects to two sockets:
 
 ## Run
 
-```bash
-git clone --recurse-submodules git@github.com:augustinsangam/opentelemetry-c-demo.git 
-cd opentelemetry-c-demo
-docker compose up
+```console
+$ git clone --recurse-submodules https://github.com/augustinsangam/opentelemetry-c-demo.git
+$ cd opentelemetry-c-demo
+$ docker compose up
 ```
 
 This command will launch 3 clients, 1 proxy and 2 servers on different hosts. Each client will send 10 requests to the server and shut down. After all clients shutdowns, the proxy will shut down and finally the server also.
