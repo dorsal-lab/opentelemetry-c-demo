@@ -4,13 +4,12 @@
 #include <opentelemetry_c/opentelemetry_c.h>
 #include <zmq.h>
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 int main() {
-  init_tracer_provider("opentelemetry-c-demo-client", "0.0.1", "",
-                       "machine-client-0.0.1");
+  otelc_init_tracer_provider("opentelemetry-c-demo-client", "0.0.1", "",
+                             "machine-client-0.0.1");
   // ZMQ code inspired from examples in ZMQ guide (https://zguide.zeromq.org/)
 
   printf("[client] Connecting to the proxy\n");
@@ -30,11 +29,12 @@ int main() {
   sprintf(proxy_frontend_addr, "tcp://localhost:%s", PROXY_FRONTEND_PORT);
   ZMQ_CHECK(zmq_connect(requester, proxy_frontend_addr));
 
-  void *tracer = get_tracer();
+  void *tracer = otelc_get_tracer();
 
   for (int i = 1; i < 10000; i += 10000 / N_MAX_CLIENT_REQUESTS) {
-    void *span = start_span(tracer, "get-nth-prime", SPAN_KIND_CLIENT, "");
-    char *span_ctx = extract_context_from_current_span(span);
+    void *span =
+        otelc_start_span(tracer, "get-nth-prime", OTELC_SPAN_KIND_CLIENT, "");
+    char *span_ctx = otelc_extract_context_from_current_span(span);
 
     char nth[8];
     sprintf(nth, "%d", i);
@@ -49,7 +49,7 @@ int main() {
     free(span_ctx);
     free(nth_prime);
 
-    end_span(span);
+    otelc_end_span(span);
   }
 
   s_send(connecter, "DISCONNECT");

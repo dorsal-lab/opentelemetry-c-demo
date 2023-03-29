@@ -2,7 +2,7 @@
 
 # Run the whole client, proxy and server stack
 # Usage: ./run.sh <n_clients> <n_server>
-# Note that each server is multithreaded and launchs N_MAX_WORKERS worker threads
+# Note that each server is multi-threaded and launches N_MAX_WORKERS worker threads
 
 set -e
 

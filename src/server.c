@@ -5,7 +5,6 @@
 #include <opentelemetry_c/opentelemetry_c.h>
 #include <zmq.h>
 
-#include <assert.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +31,7 @@ static void *worker_routine(void *args) {
   void *responder = zmq_socket(args_t->context, ZMQ_REP);
   ZMQ_CHECK(zmq_connect(responder, args_t->socket_server_addr));
 
-  void *tracer = get_tracer();
+  void *tracer = otelc_get_tracer();
 
   zmq_pollitem_t items[] = {{terminator, 0, ZMQ_POLLIN, 0},
                             {responder, 0, ZMQ_POLLIN, 0}};
@@ -45,8 +44,8 @@ static void *worker_routine(void *args) {
     }
     if (items[1].revents & ZMQ_POLLIN) {
       char *span_ctx = s_recv(responder);
-      void *span = start_span(tracer, "get-nth-prime-response",
-                              SPAN_KIND_SERVER, span_ctx);
+      void *span = otelc_start_span(tracer, "get-nth-prime-response",
+                                    OTELC_SPAN_KIND_SERVER, span_ctx);
 
       char *nth_s = s_recv(responder);
       printf("[server] Received nth=%s\n", nth_s);
@@ -61,7 +60,7 @@ static void *worker_routine(void *args) {
       free(nth_s);
       free(span_ctx);
 
-      end_span(span);
+      otelc_end_span(span);
     }
   }
 
@@ -71,8 +70,8 @@ static void *worker_routine(void *args) {
 }
 
 int main() {
-  init_tracer_provider("opentelemetry-c-demo-server", "0.0.1", "",
-                       "machine-server-0.0.1");
+  otelc_init_tracer_provider("opentelemetry-c-demo-server", "0.0.1", "",
+                             "machine-server-0.0.1");
   // ZMQ code inspired from
   // https://github.com/booksbyus/zguide/blob/master/examples/C/mtserver.c
   void *context = zmq_ctx_new();

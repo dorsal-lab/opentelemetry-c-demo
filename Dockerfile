@@ -3,7 +3,7 @@ FROM ghcr.io/augustinsangam/lttng-otelcpp:main
 WORKDIR /tmp/augustinsangam
 RUN git clone https://github.com/augustinsangam/opentelemetry-c.git
 RUN cd opentelemetry-c &&\
-	git checkout 72381f92fc3e58070110bd287877f08985595f04 &&\
+	git checkout 1621239a982eaf3bc606938fff56f166fc066e95 &&\
 	mkdir -p build &&\
 	cd build &&\
 	cmake -DBATCH_SPAN_PROCESSOR_ENABLED=ON \

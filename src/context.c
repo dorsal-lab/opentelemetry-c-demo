@@ -1,3 +1,11 @@
+/**
+ * @file context.c
+ * @brief This file give utility functions for combining context and message
+ * Instead of sending message and context in two separate messages, use
+ * add_context_to_message() function to combine both and send one message only.
+ * split_message_and_context() could be use to invert the operation.
+ */
+
 #include "context.h"
 
 #include <stdio.h>

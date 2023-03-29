@@ -4,15 +4,13 @@
 #include <opentelemetry_c/opentelemetry_c.h>
 #include <zmq.h>
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <zmq.h>
 
 int main() {
-  init_tracer_provider("opentelemetry-c-demo-proxy", "0.0.1", "",
-                       "machine-proxy-0.0.1");
+  otelc_init_tracer_provider("opentelemetry-c-demo-proxy", "0.0.1", "",
+                             "machine-proxy-0.0.1");
 
   // ZMQ code inspired from
   // https://github.com/booksbyus/zguide/blob/master/examples/C/msgqueue.c
@@ -50,7 +48,7 @@ int main() {
   ZMQ_CHECK(zmq_bind(backend, proxy_backend_addr));
 
   // Create a tracer object
-  void *tracer = get_tracer();
+  void *tracer = otelc_get_tracer();
 
   //  Initialize poll set
   zmq_pollitem_t items[] = {{frontend, 0, ZMQ_POLLIN, 0},
@@ -73,14 +71,14 @@ int main() {
       // Context
       zmq_msg_init(&message);
       zmq_msg_recv(&message, frontend, 0);
-      void *span =
-          start_span(tracer, "proxy-frontend-to-backend", SPAN_KIND_INTERNAL,
-                     (char *)zmq_msg_data(&message));
+      void *span = otelc_start_span(tracer, "proxy-frontend-to-backend",
+                                    OTELC_SPAN_KIND_INTERNAL,
+                                    (char *)zmq_msg_data(&message));
       zmq_msg_send(&message, backend, ZMQ_SNDMORE);
       zmq_msg_close(&message);
       // Message
       zmq_msg_recv_send(&message, frontend, backend);
-      end_span(span);
+      otelc_end_span(span);
       message_sent_from_frontend_to_backend = 1;
     }
     if (items[1].revents & ZMQ_POLLIN) {
@@ -91,14 +89,14 @@ int main() {
       // Context
       zmq_msg_init(&message);
       zmq_msg_recv(&message, backend, 0);
-      void *span =
-          start_span(tracer, "proxy-backend-to-frontend", SPAN_KIND_INTERNAL,
-                     (char *)zmq_msg_data(&message));
+      void *span = otelc_start_span(tracer, "proxy-backend-to-frontend",
+                                    OTELC_SPAN_KIND_INTERNAL,
+                                    (char *)zmq_msg_data(&message));
       zmq_msg_send(&message, frontend, ZMQ_SNDMORE);
       zmq_msg_close(&message);
       // Message
       zmq_msg_recv_send(&message, backend, frontend);
-      end_span(span);
+      otelc_end_span(span);
       message_sent_from_backend_to_frontend = 1;
     }
     if (items[2].revents & ZMQ_POLLIN) {
