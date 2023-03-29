@@ -3,7 +3,7 @@ services:
   client-1:
     build:
       context: .
-      dockerfile: Dockerfile.client
+      dockerfile: client.Dockerfile
     volumes:
       - ./out/ctf-traces/client-1:/code/ctf-traces
       - ./out/output/client-1:/tmp/output
@@ -11,7 +11,7 @@ services:
   client-2:
     build:
       context: .
-      dockerfile: Dockerfile.client
+      dockerfile: client.Dockerfile
     volumes:
       - ./out/ctf-traces/client-2:/code/ctf-traces
       - ./out/output/client-2:/tmp/output
@@ -19,7 +19,7 @@ services:
   client-3:
     build:
       context: .
-      dockerfile: Dockerfile.client
+      dockerfile: client.Dockerfile
     volumes:
       - ./out/ctf-traces/client-3:/code/ctf-traces
       - ./out/output/client-3:/tmp/output
@@ -27,7 +27,7 @@ services:
   proxy:
     build:
       context: .
-      dockerfile: Dockerfile.proxy
+      dockerfile: proxy.Dockerfile
     volumes:
       - ./out/ctf-traces/proxy:/code/ctf-traces
       - ./out/output/proxy:/tmp/output
@@ -35,7 +35,7 @@ services:
   server-1:
     build:
       context: .
-      dockerfile: Dockerfile.server
+      dockerfile: server.Dockerfile
     volumes:
       - ./out/ctf-traces/server-1:/code/ctf-traces
       - ./out/output/server-1:/tmp/output
@@ -43,7 +43,7 @@ services:
   server-2:
     build:
       context: .
-      dockerfile: Dockerfile.server
+      dockerfile: server.Dockerfile
     volumes:
       - ./out/ctf-traces/server-2:/code/ctf-traces
       - ./out/output/server-2:/tmp/output
