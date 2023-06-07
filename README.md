@@ -1,6 +1,6 @@
 # opentelemetry-c-demo
 
-Simple ZeroMQ client, proxy and server application traced using [opentelemetry-c](https://github.com/augustinsangam/opentelemetry-c). Clients ask servers to compute the nth prime number (n is the request input). Requests and responses are routed through a central proxy.
+Simple ZeroMQ client, proxy and server application traced using [opentelemetry-c](https://github.com/dorsal-lab/opentelemetry-c). Clients ask servers to compute the nth prime number (n is the request input). Requests and responses are routed through a central proxy.
 
 ## Architecture
 
@@ -45,7 +45,7 @@ Each worker connects to two sockets:
 ## Run
 
 ```console
-$ git clone --recurse-submodules https://github.com/augustinsangam/opentelemetry-c-demo.git
+$ git clone --recurse-submodules https://github.com/dorsal-lab/opentelemetry-c-demo.git
 $ cd opentelemetry-c-demo
 $ docker compose up
 ```
@@ -189,4 +189,4 @@ Script started on 2022-12-25 22:30:51+00:00 [<not executed on terminal>]
 Script done on 2022-12-25 22:30:53+00:00 [COMMAND_EXIT_CODE="0"]
 ```
 
-To view and analyze CTF traces, you can use the [otel-replayer project](https://github.com/augustinsangam/otel-replayer) to send each host's telemetry data to observability backends like Jaeger and Prometheus.
+To view and analyze CTF traces, you can use the [otel-replayer project](https://github.com/dorsal-lab/otel-replayer) to send each host's telemetry data to observability backends like Jaeger and Prometheus.

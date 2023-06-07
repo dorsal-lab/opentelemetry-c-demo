@@ -1,7 +1,7 @@
-FROM ghcr.io/augustinsangam/lttng-otelcpp:main
+FROM ghcr.io/dorsal-lab/lttng-otelcpp:main
 
-WORKDIR /tmp/augustinsangam
-RUN git clone https://github.com/augustinsangam/opentelemetry-c.git
+WORKDIR /tmp/dorsal-lab
+RUN git clone https://github.com/dorsal-lab/opentelemetry-c.git
 RUN cd opentelemetry-c &&\
 	git checkout 1621239a982eaf3bc606938fff56f166fc066e95 &&\
 	mkdir -p build &&\
