@@ -1,4 +1,22 @@
-FROM ghcr.io/dorsal-lab/lttng-otelcpp:main
+FROM ghcr.io/dorsal-lab/lttng-otelcpp:main as builder
+
+WORKDIR /
+
+RUN apt-get update && apt-get install -y make gcc git
+
+# Get the sources and checkout at stable release 0.98
+# see https://github.com/wolfcw/libfaketime/releases
+RUN git clone https://github.com/wolfcw/libfaketime.git && \
+    cd libfaketime && \
+    git checkout dc2ae5eef31c7a64ce3a976487d8e57d50b8d594 && \
+    make
+
+FROM ghcr.io/dorsal-lab/lttng-otelcpp:main as final
+
+# Add a +3s time drift
+COPY --from=builder /libfaketime/src/libfaketime.so.1 /usr/local/lib
+ENV LD_PRELOAD=/usr/local/lib/libfaketime.so.1
+ENV FAKETIME="+3s"
 
 WORKDIR /tmp/dorsal-lab
 RUN git clone https://github.com/dorsal-lab/opentelemetry-c.git &&\
