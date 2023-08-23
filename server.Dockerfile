@@ -1,9 +1,9 @@
 FROM ghcr.io/dorsal-lab/lttng-otelcpp:main
 
 WORKDIR /tmp/dorsal-lab
-RUN git clone https://github.com/dorsal-lab/opentelemetry-c.git
-RUN cd opentelemetry-c &&\
-	git checkout 1621239a982eaf3bc606938fff56f166fc066e95 &&\
+RUN git clone https://github.com/dorsal-lab/opentelemetry-c.git &&\
+    cd opentelemetry-c &&\
+	git checkout 9a03a58e2b37f0d2c11ad5352130295f1631980e &&\
 	mkdir -p build &&\
 	cd build &&\
 	cmake -DBATCH_SPAN_PROCESSOR_ENABLED=ON \
